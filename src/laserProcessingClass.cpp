@@ -46,15 +46,12 @@ void LaserProcessingClass::featureExtraction(const pcl::PointCloud<pcl::PointXYZ
             }
         }
         else if (N_SCANS == 64)
-        {   
-            if (angle >= -8.83)
-                scanID = int((2 - angle) * 3.0 + 0.5);
-            else
-                scanID = N_SCANS / 2 + int((-8.83 - angle) * 2.0 + 0.5);
-
-            if (angle > 2 || angle < -24.33 || scanID > 63 || scanID < 0)
+        {
+            scanID = round((angle + 45) / 1.43);
+            if (scanID > (N_SCANS - 1) || scanID < 0)
             {
-                continue;
+              ROS_WARN_STREAM("SKIP scanID=" << scanID << " angle " << angle);
+              continue;
             }
         }
         else
@@ -62,6 +59,8 @@ void LaserProcessingClass::featureExtraction(const pcl::PointCloud<pcl::PointXYZ
             printf("wrong scan number\n");
         }
         laserCloudScans[scanID]->push_back(pc_in->points[i]); 
+
+        // scanID = round((angle + (lidar_param.vertical_angle*(N_SCANS - 1)/2)) / lidar_param.vertical_angle);
 
     }
 
